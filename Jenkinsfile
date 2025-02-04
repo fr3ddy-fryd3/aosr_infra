@@ -9,10 +9,10 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                        git url: 'https://github.com/fr3ddy-fryd3/aosr-editor.git', branch: 'dev', credentialsId: GIT_CREDENTIALS
+                        git url: 'https://github.com/fr3ddy-fryd3/aosr-editor.git', branch: 'dev', credentialsId: '60733193-dba8-4fd5-83df-faa00a1156af'
                     }
                     dir('frontend') {
-                        git url: 'https://github.com/fr3ddy-fryd3/aosr-front.git', branch: 'dev', credentialsId: GIT_CREDENTIALS
+                        git url: 'https://github.com/fr3ddy-fryd3/aosr-front.git', branch: 'dev', credentialsId: '60733193-dba8-4fd5-83df-faa00a1156af'
                     }
                 }
             }
