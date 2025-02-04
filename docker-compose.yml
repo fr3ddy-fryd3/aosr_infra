@@ -1,0 +1,59 @@
+services:
+  backend:
+    build: ../backend/
+    container_name: aosr-back
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ../frontend/
+    container_name: aosr-front
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - 5432:5432
+
+  jenkins:
+    image: jenkins/jenkins:latest
+    container_name: jenkins
+    restart: unless-stopped
+    user: root # Запускаем от root
+    group_add:
+      - "docker" # Добавляем Jenkins в группу Docker
+    ports:
+      - "8081:8080" # веб-интерфейс
+      - "50000:50000" # подключение агентов
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false # Отключаем мастер настройки
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+  jenkins_home:
+
+networks:
+  app-network:
+    external: true
