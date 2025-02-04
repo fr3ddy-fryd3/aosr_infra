@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ../backend/
+    build: ./backend/
     container_name: aosr-back
     networks:
       - app-network
@@ -10,7 +10,7 @@ services:
       - db
 
   frontend:
-    build: ../frontend/
+    build: ./frontend/
     container_name: aosr-front
     ports:
       - "80:80"
@@ -32,7 +32,7 @@ services:
       - 5432:5432
 
   jenkins:
-    image: jenkins/jenkins:latest
+    build: ./jenkins/
     container_name: jenkins
     restart: unless-stopped
     user: root
