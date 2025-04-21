@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend/
+    build: ../backend/
     container_name: aosr-back
     networks:
       - app-network
@@ -10,48 +10,47 @@ services:
       - db
 
   frontend:
-    build: ./frontend/
+    build: ../frontend/
     container_name: aosr-front
+    networks:
+      - app-network
     ports:
-      - "80:80"
+      - "80:5173"
     depends_on:
       - backend
 
   db:
-    image: postgres:latest
-    container_name: postgres-db
+    image: postgres:17
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - db_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    ports:
-      - 5432:5432
 
-  jenkins:
-    build: ./jenkins/
-    container_name: jenkins
-    restart: unless-stopped
-    user: root
-    privileged: true
-    ports:
-      - "8081:8080" # веб-интерфейс
-      - "50000:50000" # подключение агентов
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false # Отключаем мастер настройки
+  db_backup:
+    build: ./backup
+    depends_on:
+      - db
+    restart: always
     networks:
       - app-network
+    environment:
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      PGHOST: db
+    volumes:
+      - pg_backups:/backups
 
 volumes:
   db_data:
-  jenkins_home:
+  pg_backups:
 
 networks:
   app-network:
